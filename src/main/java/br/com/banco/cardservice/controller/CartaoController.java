@@ -1,7 +1,6 @@
 package br.com.banco.cardservice.controller;
-import java.util.List;
-
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,13 +23,12 @@ public String solicitarCartao(@RequestBody CartaoRequest request) {
     return service.solicitarCartao(request);
 }
 
-@PostMapping("/aumento")
-public String solicitarAumento() {
-    return service.solicitarAumento();
+@PostMapping("/aumento/{id}")
+public String solicitarAumento(@PathVariable Long id) {
+    return service.solicitarAumento(id);
 }
-@GetMapping
-public List<Cartao> listarCartoes() {
-    return service.listarCartoes();
+@GetMapping("/{id}")
+public Cartao buscar(@PathVariable Long id) {
+    return service.buscarPorId(id);
 }
-
 }
