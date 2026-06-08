@@ -6,4 +6,5 @@ public class CartaoRequest {
     public String validade;
     public String titular;
     public double limite;
+    public String idConta;
 }

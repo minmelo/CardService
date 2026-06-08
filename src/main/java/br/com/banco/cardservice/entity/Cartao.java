@@ -11,6 +11,9 @@ public class Cartao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String idConta;
+
     private String numero;
     private String cvv;
     private String validade;
@@ -20,6 +23,14 @@ public class Cartao {
 
     public Cartao() {
         this.ativo = true;
+    }
+
+    public String getIdConta() {
+        return idConta;
+    }
+
+    public void setIdConta(String idConta) {
+        this.idConta = idConta;
     }
 
     public String getValidade() {
@@ -70,7 +81,4 @@ public class Cartao {
         this.ativo = ativo;
     }
 
-
-
-    
 }

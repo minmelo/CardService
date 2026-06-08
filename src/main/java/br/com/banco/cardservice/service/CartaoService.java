@@ -3,9 +3,11 @@ package br.com.banco.cardservice.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import br.com.banco.cardservice.CardserviceApplication;
 import br.com.banco.cardservice.dto.CartaoRequest;
+import br.com.banco.cardservice.dto.ResultadoDTO;
 import br.com.banco.cardservice.entity.Cartao;
 import br.com.banco.cardservice.repository.CartaoRepository;
 
@@ -21,6 +23,7 @@ public class CartaoService {
     }
 
     public String solicitarCartao(CartaoRequest request) {
+
         if (request.limite < 0) {
             return "Limite inválido";
         }
@@ -30,6 +33,7 @@ public class CartaoService {
         cartao.setValidade(request.validade);
         cartao.setTitular(request.titular);
         cartao.setLimite(request.limite);
+        cartao.setIdConta(request.idConta);
 
         repository.save(cartao);
 
@@ -51,17 +55,33 @@ public class CartaoService {
         if (!cartao.isAtivo()) {
             return "Aumento negado. Cartão inativo.";
         }
-        double salarioAnterior = 5000.00; // Simulação de salário anterior
-        double salarioAtual = 6000.00; // Simulação de salário atual
+        ResultadoDTO resultado = buscarSalario(cartao.getIdConta());
+        if (!resultado.isSucesso()) {
+            return "Aumento negado. Erro ao buscar salário: " + resultado.getErro();
+        }
+        double salario = resultado.getNovoValor();
         double aumento;
-        if (salarioAtual > salarioAnterior) {
-            aumento = salarioAtual - salarioAnterior;
+        if (salario > 0) {
+            aumento = salario * 0.3;
             cartao.setLimite(cartao.getLimite() + aumento);
             repository.save(cartao);
             return "Aumento concedido com sucesso";
         }
         return "Aumento negado. Salário não aumentou.";
 
+    }
+
+    private ResultadoDTO buscarSalario(String idConta) {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = "https://contaprojvaporarquitetura-2.onrender.com/contas/"
+                + idConta
+                + "/salario";
+
+        return restTemplate.getForObject(
+                url,
+                ResultadoDTO.class);
     }
 
     public Cartao buscarPorId(Long id) {
