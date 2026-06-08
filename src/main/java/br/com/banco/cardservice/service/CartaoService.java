@@ -54,17 +54,10 @@ public class CartaoService {
     }
 
     private boolean contaExiste(String idConta) {
-        RestTemplate restTemplate = new RestTemplate();
 
-        String url = "https://contaprojvaporarquitetura-2.onrender.com/contas/"
-                + idConta;
+        ResultadoDTO resultado = buscarSalario(idConta);
 
-        try {
-            restTemplate.getForObject(url, Object.class);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+        return resultado != null && resultado.isSucesso();
     }
 
     public String solicitarAumento(String idConta) {
