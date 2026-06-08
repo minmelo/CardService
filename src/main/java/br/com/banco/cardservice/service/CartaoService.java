@@ -23,7 +23,9 @@ public class CartaoService {
     }
 
     public String solicitarCartao(CartaoRequest request) {
-
+        if (!contaExiste(request.idConta)) {
+            return "Conta não existe. Cartão negado.";
+        }
         if (request.limite < 0) {
             return "Limite inválido";
         }
@@ -42,33 +44,59 @@ public class CartaoService {
         return "OK";
     }
 
+    public Cartao buscarPorIdConta(String idConta) {
+        return repository.findById(idConta).orElse(null);
+    }
+
     public List<Cartao> listarCartoes() {
         return repository.findAll();
 
     }
 
-    public String solicitarAumento(Long cartaoId) {
-        Cartao cartao = repository.findById(cartaoId).orElse(null);
+    private boolean contaExiste(String idConta) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = "https://contaprojvaporarquitetura-2.onrender.com/contas/"
+                + idConta;
+
+        try {
+            restTemplate.getForObject(url, Object.class);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String solicitarAumento(String idConta) {
+
+        Cartao cartao = repository.findById(idConta).orElse(null);
+
         if (cartao == null) {
-            return "Aumento negado. Cartão não encontrado.";
+            return "Cartão não encontrado para a conta: " + idConta;
         }
+
         if (!cartao.isAtivo()) {
-            return "Aumento negado. Cartão inativo.";
+            return "Cartão inativo.";
         }
-        ResultadoDTO resultado = buscarSalario(cartao.getIdConta());
+
+        ResultadoDTO resultado = buscarSalario(idConta);
+
         if (!resultado.isSucesso()) {
             return "Aumento negado. Erro ao buscar salário: " + resultado.getErro();
         }
-        double salario = resultado.getNovoValor();
-        double aumento;
-        if (salario > 0) {
-            aumento = salario * 0.3;
-            cartao.setLimite(cartao.getLimite() + aumento);
-            repository.save(cartao);
-            return "Aumento concedido com sucesso";
-        }
-        return "Aumento negado. Salário não aumentou.";
 
+        double salario = resultado.getNovoValor();
+
+        double limiteMaximo = salario * 0.4;
+
+        if (cartao.getLimite() >= limiteMaximo) {
+            return "Aumento negado. Limite já adequado à renda.";
+        }
+
+        cartao.setLimite(limiteMaximo);
+        repository.save(cartao);
+
+        return "Aumento concedido com sucesso. Novo limite: " + limiteMaximo;
     }
 
     private ResultadoDTO buscarSalario(String idConta) {
@@ -82,10 +110,6 @@ public class CartaoService {
         return restTemplate.getForObject(
                 url,
                 ResultadoDTO.class);
-    }
-
-    public Cartao buscarPorId(Long id) {
-        return repository.findById(id).orElse(null);
     }
 
 }

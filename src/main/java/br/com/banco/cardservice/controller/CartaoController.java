@@ -1,4 +1,5 @@
 package br.com.banco.cardservice.controller;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,17 +19,19 @@ public class CartaoController {
     public CartaoController(CartaoService service) {
         this.service = service;
     }
-@PostMapping("/solicitar")
-public String solicitarCartao(@RequestBody CartaoRequest request) {
-    return service.solicitarCartao(request);
-}
 
-@PostMapping("/aumento/{id}")
-public String solicitarAumento(@PathVariable Long id) {
-    return service.solicitarAumento(id);
-}
-@GetMapping("/{id}")
-public Cartao buscar(@PathVariable Long id) {
-    return service.buscarPorId(id);
-}
+    @PostMapping("/solicitar")
+    public String solicitarCartao(@RequestBody CartaoRequest request) {
+        return service.solicitarCartao(request);
+    }
+
+    @PostMapping("/aumento/{id}")
+    public String solicitarAumento(@PathVariable String id) {
+        return service.solicitarAumento(id);
+    }
+
+    @GetMapping("/{idConta}")
+    public Cartao buscar(@PathVariable String idConta) {
+        return service.buscarPorIdConta(idConta);
+    }
 }

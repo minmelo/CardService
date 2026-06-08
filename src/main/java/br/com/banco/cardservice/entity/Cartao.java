@@ -9,11 +9,7 @@ import jakarta.persistence.Id;
 
 public class Cartao {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String idConta;
-
     private String numero;
     private String cvv;
     private String validade;
